@@ -2,6 +2,8 @@
 // See the LICENSE file in the solution root for more information.
 
 using System.Globalization;
+using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using MigraDoc.DocumentObjectModel;
 using MigraDoc.DocumentObjectModel.Fields;
@@ -31,6 +33,36 @@ namespace MigraDoc.Tests
         public void Dispose()
         {
             PdfSharpCore.ResetAll();
+        }
+
+        [Fact]
+        public void UnderlineAcrossSmallerFormattedSpaceUsesOneStroke()
+        {
+            var document = new Document();
+            document.Styles.Normal.Font.Name = "Arial";
+            var paragraph = document.AddSection().AddParagraph();
+            paragraph.Format.Font.Size = 12;
+            paragraph.Format.Font.Underline = Underline.Single;
+            paragraph.AddText("before");
+            paragraph.AddFormattedText(" ").Font.Size = 8;
+            paragraph.AddText("after");
+
+            var renderer = new PdfDocumentRenderer { Document = document };
+            renderer.RenderDocument();
+
+            var content = string.Concat(renderer.PdfDocument.Pages[0].Contents.Elements
+                .OfType<PdfSharp.Pdf.Advanced.PdfReference>()
+                .Select(reference => reference.Value)
+                .OfType<PdfSharp.Pdf.Advanced.PdfContent>()
+                .Where(stream => stream.Stream != null)
+                .Select(stream => Encoding.Latin1.GetString(stream.Stream!.UnfilteredValue)));
+            var underlines = Regex.Matches(content,
+                @"(?m)(?<x1>[\d.]+) (?<y1>[\d.]+) m\s+(?<x2>[\d.]+) (?<y2>[\d.]+) l\s+S")
+                .Where(match => match.Groups["y1"].Value == match.Groups["y2"].Value &&
+                    match.Groups["x1"].Value != match.Groups["x2"].Value).ToArray();
+
+            underlines.Should().ContainSingle();
+            content.Should().Contain(".75 w");
         }
 
         [Fact]
