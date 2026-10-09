@@ -4,6 +4,7 @@
 #if WPF
 using System.IO;
 #endif
+using System.Text;
 using FluentAssertions;
 using PdfSharp.Drawing;
 using PdfSharp.Fonts;
@@ -25,6 +26,24 @@ namespace PdfSharp.Tests.Fonts
         public void Dispose()
         {
             GlobalFontSettings.ResetFontManagement();
+        }
+
+        [Fact]
+        public void Supplementary_code_point_has_UTF16BE_ToUnicode_mapping()
+        {
+            var document = new PdfDocument();
+            document.Options.CompressContentStreams = false;
+            var page = document.AddPage();
+            var font = new XFont(UnitTestFontResolver.EmojiFont, 12, XFontStyleEx.Regular,
+                new XPdfFontOptions(PdfFontEncoding.Unicode));
+            using (var graphics = XGraphics.FromPdfPage(page))
+                graphics.DrawString("\ud83d\ude00", font, XBrushes.Black, 50, 100);
+
+            using var stream = new MemoryStream();
+            document.Save(stream, false);
+            var pdf = Encoding.ASCII.GetString(stream.ToArray());
+
+            pdf.Should().Contain("<D83DDE00>");
         }
 
         [Fact]

@@ -94,11 +94,15 @@ namespace PdfSharp.Pdf.Advanced
                 PdfSharpLogHost.Logger.LogDebug($"Glyph index: {key,-7} {(value /*& 0xFFFF_0000*/) >>> 16,4:X4}-{value & 0xFFFF,4:X4}");
 #endif
                 //wrt.WriteLine(String.Format(CultureInfo.InvariantCulture, "<{0:X4}><{0:X4}><{1:X4}>", item.Key, (int)item.Value));
-                if ((value & 0xFFFF_0000) == 0)
+                string destination;
+                if (value <= 0xFFFF)
+                    destination = Invariant($"{value:X4}");
+                else
                 {
-                    // TODO_OLD: handle surrogate pairs here.
+                    var scalar = value - 0x10000;
+                    destination = Invariant($"{0xD800 + (scalar >> 10):X4}{0xDC00 + (scalar & 0x3FF):X4}");
                 }
-                wrt.WriteLine(Invariant($"<{key:X4}><{key:X4}><{(uint)value:X4}>"));
+                wrt.WriteLine(Invariant($"<{key:X4}><{key:X4}><{destination}>"));
             }
             wrt.WriteLine("endbfrange");
             wrt.Write(suffix);
