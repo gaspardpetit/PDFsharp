@@ -2751,6 +2751,9 @@ namespace MigraDoc.Rendering
             var pen = new XPen(ColorHelper.ToXColor(font.Color, _paragraph.Document.UseCmykColor), font.Size.Point / 16);
 #endif
 #endif
+            if (!isWord && underlineType == Underline.Single && _currentUnderlinePen != null &&
+                pen.Color == _currentUnderlinePen.Color)
+                pen.Width = _currentUnderlinePen.Width;
             pen.DashStyle = font.Underline switch
             {
 #if PSGFX
