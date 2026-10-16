@@ -152,6 +152,12 @@ namespace MigraDoc.Rendering
         public Func<Image, double?>? InlineImageVerticalOffset { get; set; }
 
         /// <summary>
+        /// Supplies a minimum top-border space, in points, for a table fragment starting at the given row.
+        /// The rendered border width is unchanged.
+        /// </summary>
+        public Func<Table, int, double?>? TableFragmentTopBorderReservation { get; set; }
+
+        /// <summary>
         /// Selects text frames whose content is clipped to the frame rectangle when
         /// <see cref="TextFrame.ClipContent"/> has not been set.
         /// </summary>
