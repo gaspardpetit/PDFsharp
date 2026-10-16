@@ -68,6 +68,11 @@ namespace MigraDoc.Rendering
         public Func<Image, double?>? InlineImageVerticalOffset { get; set; }
 
         /// <summary>
+        /// Selects text frames whose content is clipped to the frame rectangle.
+        /// </summary>
+        public Func<TextFrame, bool>? ClipTextFrameContent { get; set; }
+
+        /// <summary>
         /// Prepares this instance for rendering.
         /// Commit renderEvents to allow RenderTextEvent calls.
         /// </summary>
