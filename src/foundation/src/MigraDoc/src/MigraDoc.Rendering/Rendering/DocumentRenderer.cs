@@ -32,6 +32,12 @@ namespace MigraDoc.Rendering
         public double? UnderlineStrokeWidthFactor { get; set; }
 
         /// <summary>
+        /// Adjusts a justified word's painted width without changing line fitting or pagination.
+        /// Return null to keep its measured width. Non-finite values are ignored.
+        /// </summary>
+        public Func<Paragraph, string, XFont, double?>? JustifiedRenderWordWidthAdjustment { get; set; }
+
+        /// <summary>
         /// Returns the permitted line-end overhang in points for a word in a paragraph,
         /// or null to use ordinary wrapping.
         /// </summary>
