@@ -31,6 +31,12 @@ namespace MigraDoc.Rendering
         /// <summary>Optional underline stroke width as a fraction of font size. The default is 1/16.</summary>
         public double? UnderlineStrokeWidthFactor { get; set; }
 
+        /// <summary>
+        /// Adjusts the spacing before a word's final glyph in points during both layout and painting.
+        /// Null or a non-finite value leaves the word unchanged.
+        /// </summary>
+        public Func<Paragraph, string, XFont, double?>? TrailingGlyphKerning { get; set; }
+
         /// <summary>Optional underline offset as a fraction of font descent. The default is 0.33.</summary>
         public double? UnderlineVerticalOffsetFactor { get; set; }
 
