@@ -32,6 +32,12 @@ namespace MigraDoc.Rendering
         public double? UnderlineStrokeWidthFactor { get; set; }
 
         /// <summary>
+        /// Returns the permitted line-end overhang in points for a word in a paragraph,
+        /// or null to use ordinary wrapping.
+        /// </summary>
+        public Func<Paragraph, string, XFont, double?>? LineEndOverhang { get; set; }
+
+        /// <summary>
         /// Adjusts the spacing before a word's final glyph during painting only.
         /// The adjustment does not affect line fitting. Null or non-finite values are ignored.
         /// </summary>
