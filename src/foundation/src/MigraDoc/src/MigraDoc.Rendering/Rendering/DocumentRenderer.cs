@@ -32,6 +32,12 @@ namespace MigraDoc.Rendering
         public double? UnderlineStrokeWidthFactor { get; set; }
 
         /// <summary>
+        /// Selects a paint-only baseline offset in points for an exact-spaced paragraph.
+        /// Receives the fonts on the first rendered line. Null or a non-finite value leaves the baseline unchanged.
+        /// </summary>
+        public Func<Paragraph, IReadOnlyList<XFont>, double?>? ExactParagraphBaselineOffset { get; set; }
+
+        /// <summary>
         /// Adjusts the spacing before a word's final glyph in points during both layout and painting.
         /// Null or a non-finite value leaves the word unchanged.
         /// </summary>
