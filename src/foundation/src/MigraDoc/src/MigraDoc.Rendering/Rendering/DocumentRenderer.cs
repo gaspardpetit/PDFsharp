@@ -38,6 +38,12 @@ namespace MigraDoc.Rendering
         public Func<Paragraph, string, XFont, double?>? LineEndOverhang { get; set; }
 
         /// <summary>
+        /// Adds the permitted overhang to the fit allowance for a final word,
+        /// preserving its full measured width for rendering.
+        /// </summary>
+        public bool AdditiveTerminalLineEndOverhang { get; set; }
+
+        /// <summary>
         /// Adjusts the spacing before a word's final glyph during painting only.
         /// The adjustment does not affect line fitting. Null or non-finite values are ignored.
         /// </summary>
