@@ -52,6 +52,12 @@ namespace MigraDoc.Rendering
         /// <summary>Optional underline offset as a fraction of font descent. The default is 0.33.</summary>
         public double? UnderlineVerticalOffsetFactor { get; set; }
 
+        /// <summary>
+        /// Selects a paint-only baseline offset in points for a resolved font in an exact-spaced paragraph.
+        /// Null or a non-finite value leaves its baseline unchanged.
+        /// </summary>
+        public Func<Paragraph, XFont, double?>? ExactFontBaselineOffset { get; set; }
+
         /// <summary>Optional font-specific underline factors; null uses the renderer-wide factors.</summary>
         public Func<Font, (double StrokeWidthFactor, double VerticalOffsetFactor)?>? UnderlineGeometry { get; set; }
 
