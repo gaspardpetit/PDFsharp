@@ -211,6 +211,15 @@ namespace MigraDoc.DocumentObjectModel.Shapes
         }
 
         /// <summary>
+        /// Gets or sets whether content is vertically centered within the frame's fixed height.
+        /// </summary>
+        public bool CenterContentVertically
+        {
+            get => Values.CenterContentVertically ?? false;
+            set => Values.CenterContentVertically = value;
+        }
+
+        /// <summary>
         /// The document elements that build the text frame’s content.
         /// </summary>
         public DocumentElements Elements
@@ -262,6 +271,10 @@ namespace MigraDoc.DocumentObjectModel.Shapes
                 serializer.WriteSimpleAttribute("Layer", Layer);
             if (Values.ClipContent is not null)
                 serializer.WriteSimpleAttribute("ClipContent", ClipContent);
+            if (Values.PaginateContent is not null)
+                serializer.WriteSimpleAttribute("PaginateContent", PaginateContent);
+            if (Values.CenterContentVertically is not null)
+                serializer.WriteSimpleAttribute("CenterContentVertically", CenterContentVertically);
             serializer.EndAttributes(pos);
 
             serializer.BeginContent();
@@ -338,6 +351,11 @@ namespace MigraDoc.DocumentObjectModel.Shapes
             /// Gets or sets whether frame content can continue on later pages.
             /// </summary>
             public bool? PaginateContent { get; set; }
+
+            /// <summary>
+            /// Gets or sets whether frame content is vertically centered.
+            /// </summary>
+            public bool? CenterContentVertically { get; set; }
 
             /// <summary>
             /// Gets or sets the internal nullable implementation value of the enclosing document object property.
