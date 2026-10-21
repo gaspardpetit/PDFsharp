@@ -160,6 +160,26 @@ namespace MigraDoc.Tests
         }
 
         [Fact]
+        public void FramePaginationAndTopBottomExclusionSurviveCloneAndDdl()
+        {
+            var document = new Document();
+            var frame = document.AddSection().AddTextFrame();
+            frame.PaginateContent = true;
+            frame.WrapFormat.Style = WrapStyle.TopBottom;
+            frame.WrapFormat.ExcludeFollowingText = true;
+
+            var clone = frame.Clone();
+            clone.PaginateContent.Should().BeTrue();
+            clone.WrapFormat.ExcludeFollowingText.Should().BeTrue();
+
+            var ddl = MigraDoc.DocumentObjectModel.IO.DdlWriter.WriteToString(document);
+            var restored = MigraDoc.DocumentObjectModel.IO.DdlReader.DocumentFromString(ddl);
+            var restoredFrame = restored.Sections[0].Elements.OfType<TextFrame>().Single();
+            restoredFrame.PaginateContent.Should().BeTrue();
+            restoredFrame.WrapFormat.ExcludeFollowingText.Should().BeTrue();
+        }
+
+        [Fact]
         public void TextFrameRotationTransformsCompleteFrame()
         {
             string RenderContent(double? angle)
@@ -512,6 +532,45 @@ namespace MigraDoc.Tests
             unselected.PdfDocument.PageCount.Should().Be(ordinary.PdfDocument.PageCount);
             PdfFileHelper.GetPageContentStream(unselected.PdfDocument, 0)
                 .Should().Be(PdfFileHelper.GetPageContentStream(ordinary.PdfDocument, 0));
+        }
+
+        [Fact]
+        public void SelectedTopBottomImageMovesFollowingTextBelowItsBand()
+        {
+            static (double Top, string Content) Render(bool enableExclusion)
+            {
+                var document = new Document();
+                document.Styles.Normal.Font.Name = "Arial";
+                var section = document.AddSection();
+                section.PageSetup.TopMargin = Unit.FromPoint(72);
+                section.AddParagraph("Before image");
+                var image = section.AddImage(
+                    "base64:iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4//8/AwAI/AL+p5qgoAAAAABJRU5ErkJggg==");
+                image.RelativeHorizontal = RelativeHorizontal.Margin;
+                image.RelativeVertical = RelativeVertical.Margin;
+                image.Top = Unit.FromPoint(30);
+                image.Width = Unit.FromPoint(120);
+                image.Height = Unit.FromPoint(90);
+                image.WrapFormat.Style = WrapStyle.TopBottom;
+                section.AddParagraph(string.Concat(Enumerable.Repeat(
+                    "Words flowing around the image. ", 35)));
+                var following = section.AddParagraph("Following image");
+                var renderer = new PdfDocumentRenderer { Document = document };
+                image.WrapFormat.ExcludeFollowingText = enableExclusion;
+                renderer.RenderDocument();
+                var top = renderer.DocumentRenderer.GetRenderInfoFromPage(1)!
+                    .Single(info => ReferenceEquals(info.DocumentObject, following))
+                    .LayoutInfo.ContentArea.Y.Point;
+                var content = PdfFileHelper.GetPageContentStream(renderer.PdfDocument, 0);
+                return (top, content);
+            }
+
+            var normal = Render(false);
+            var selected = Render(true);
+
+            selected.Top.Should().BeGreaterThan(normal.Top + 50);
+            selected.Content.Should().Contain("Following");
+            normal.Content.Should().Contain("Following");
         }
 
         [Fact]
