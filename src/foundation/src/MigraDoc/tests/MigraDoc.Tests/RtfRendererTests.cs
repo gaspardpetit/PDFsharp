@@ -44,6 +44,20 @@ namespace MigraDoc.Tests
         }
 
         [Fact]
+        public void Double_border_uses_RTF_double_border_control_word()
+        {
+            var document = new Document();
+            var paragraph = document.AddSection().AddParagraph("Double border");
+            paragraph.Format.Borders.Top.Style = BorderStyle.Double;
+            paragraph.Format.Borders.Top.Width = 0.5;
+            var filename = IOUtility.GetTempFullFileName("DoubleBorder", null) + ".rtf";
+
+            new RtfDocumentRenderer().Render(document, filename, Environment.CurrentDirectory);
+
+            File.ReadAllText(filename).Should().Contain("\\brdrdb");
+        }
+
+        [Fact]
         public void Create_Hello_World_RtfRendererTests()
         {
             // Create a MigraDoc document.
@@ -107,6 +121,26 @@ namespace MigraDoc.Tests
             var rtf = new RtfDocumentRenderer().RenderToString(document, Environment.CurrentDirectory);
             rtf.Should().Contain(@"\shpwr2");
             rtf.Should().Contain(@"\shpwrk" + side);
+        }
+
+        public static IEnumerable<object[]> BorderStyles => Enum.GetValues<BorderStyle>()
+            .Where(style => style != BorderStyle.None)
+            .Select(style => new object[] { style });
+
+        [Theory]
+        [MemberData(nameof(BorderStyles))]
+        public void EveryBorderStyleRendersToRtf(BorderStyle style)
+        {
+            var document = new Document();
+            var table = document.AddSection().AddTable();
+            table.AddColumn("2cm");
+            var cell = table.AddRow()[0];
+            cell.Borders.Style = style;
+            cell.Borders.Width = 1;
+            cell.AddParagraph("Cell");
+
+            var rtf = new RtfDocumentRenderer().RenderToString(document, Environment.CurrentDirectory);
+            rtf.Should().Contain(@"\clbrdr");
         }
 
         /// <summary>
