@@ -38,6 +38,12 @@ namespace MigraDoc.Rendering
         public Func<Paragraph, IReadOnlyList<XFont>, double?>? ExactParagraphBaselineOffset { get; set; }
 
         /// <summary>
+        /// Optionally adjusts the spacing and insets of tab leader characters in points.
+        /// Returning null retains the default rendering.
+        /// </summary>
+        public Func<Paragraph, TabLeader, XFont, (double CharacterSpacing, double LeftInset, double RightInset)?>? TabLeaderLayout { get; set; }
+
+        /// <summary>
         /// Adjusts the spacing before a word's final glyph in points during both layout and painting.
         /// Null or a non-finite value leaves the word unchanged.
         /// </summary>
