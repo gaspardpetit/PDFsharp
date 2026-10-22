@@ -125,7 +125,6 @@ namespace MigraDoc.Rendering
                     break;
 
                 case TextOrientation.Upward:
-                    state = _gfx.Save();
                     xPosition = frameContentArea.X;
                     yPosition = frameContentArea.Y + frameContentArea.Height;
                     _gfx.TranslateTransform(xPosition, yPosition);
