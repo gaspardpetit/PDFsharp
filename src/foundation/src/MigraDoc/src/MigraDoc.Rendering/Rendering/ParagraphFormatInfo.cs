@@ -37,6 +37,7 @@ namespace MigraDoc.Rendering
         public bool HasContinuationOverride;
         public XUnitPt WordsWidth;
         public XUnitPt LineWidth;
+        public XUnitPt ClippedTrailingWidth;
         public bool LineEndsWithLineBreak;
         public int BlankCount;
         public VerticalLineInfo Vertical;
