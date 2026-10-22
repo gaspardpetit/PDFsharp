@@ -203,6 +203,13 @@ namespace MigraDoc.Rendering
         public Func<Paragraph, double?>? JustifiedSpaceShrinkFactorForParagraph { get; set; }
 
         /// <summary>
+        /// Marks explicit space characters whose width should be dropped when the
+        /// following word would not fit on the current line. Other explicit spaces
+        /// retain their normal MigraDoc behavior.
+        /// </summary>
+        public Func<Paragraph, Character, bool>? CollapsibleSpaceBeforeWrap { get; set; }
+
+        /// <summary>
         /// Prepares this instance for rendering.
         /// Commit renderEvents to allow RenderTextEvent calls.
         /// </summary>
