@@ -1598,7 +1598,10 @@ namespace MigraDoc.Rendering
             }
             else
             {
-                _currentLeaf = prevParaFormatInfo.GetLastLineInfo().EndIter?.GetNextLeaf(); // Do not check here. ?? NRT.ThrowOnNull<ParagraphIterator>();
+                var lastLine = prevParaFormatInfo.GetLastLineInfo();
+                _currentLeaf = lastLine.HasContinuationOverride
+                    ? lastLine.ContinuationIter
+                    : lastLine.EndIter?.GetNextLeaf();
                 _isFirstLine = false;
                 ((ParagraphFormatInfo)_renderInfo.FormatInfo)._isStarting = false;
             }
@@ -1758,7 +1761,7 @@ namespace MigraDoc.Rendering
                                 precedingLeaf = precedingLeaf.GetPreviousLeaf();
                             rejectedTab = precedingLeaf?.Current is not Character { SymbolName: SymbolName.Tab };
                         }
-                        StoreLineInformation();
+                        StoreLineInformation(rejectedTab);
                         if (rejectedTab)
                             _currentLeaf = _currentLeaf?.GetNextLeaf();
                         // StartNewLine() no longer gives the signal to start a new page. We don’t know the line height yet and therefore can’t decide,
@@ -2729,7 +2732,7 @@ namespace MigraDoc.Rendering
         /// <summary>
         /// Stores all line information.
         /// </summary>
-        void StoreLineInformation()
+        void StoreLineInformation(bool rejectedTab = false)
         {
             PopSavedBlankWidth();
 
@@ -2804,6 +2807,11 @@ namespace MigraDoc.Rendering
                 lineInfo.EndIter = new ParagraphIterator(_paragraph.Elements).GetLastLeaf();
             else
                 lineInfo.EndIter = _currentLeaf.GetPreviousLeaf() ?? NRT.ThrowOnNull<ParagraphIterator>();
+            if (rejectedTab)
+            {
+                lineInfo.HasContinuationOverride = true;
+                lineInfo.ContinuationIter = _currentLeaf?.GetNextLeaf();
+            }
 
             lineInfo.BlankCount = _currentBlankCount;
 
