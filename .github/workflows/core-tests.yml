@@ -1,0 +1,38 @@
+name: Core tests
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+      - name: Download test assets
+        shell: pwsh
+        run: ./dev/download-assets.ps1
+      - name: PDFsharp tests
+        run: dotnet test src/foundation/src/PDFsharp/tests/PdfSharp.Tests/PdfSharp.Tests.csproj -f net8.0 --verbosity quiet
+      - name: MigraDoc tests
+        run: dotnet test src/foundation/src/MigraDoc/tests/MigraDoc.Tests/MigraDoc.Tests.csproj -f net8.0 --verbosity quiet
+      - name: Build NuGet packages for all target frameworks
+        shell: pwsh
+        run: |
+          $projects = @(
+            'src/foundation/nuget/src/PDFsharp.NuGet/PDFsharp.NuGet.csproj',
+            'src/foundation/nuget/src/MigraDoc.NuGet/MigraDoc.NuGet.csproj'
+          )
+          foreach ($project in $projects) {
+            dotnet build $project --configuration Release '-p:Version=0.0.0-ci' '-p:PackageVersion=0.0.0-ci' --verbosity quiet
+            if ($LASTEXITCODE -ne 0) { throw "Package build failed: $project" }
+          }
